@@ -38,7 +38,7 @@ def imageProcces(link, forNew):
     def newLoad(image):
         mode = "RGB"
         im = PIL.Image.open(image)
-        im.resi
+       
         im = im.convert(mode)
 
     pil_image = PIL.Image.fromarray(fr_image)
