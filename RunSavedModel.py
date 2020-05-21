@@ -4,10 +4,7 @@ import PIL.ImageDraw
 import numpy as np
 
 from keras import models
-from keras.layers import Dense
-from keras.models import Sequential
 
-from keras.optimizers import Adam,SGD
 
 import math
 
@@ -26,6 +23,7 @@ def get_the_Ratio(point1, point2, point3, point4):
 
 
 def imageProcces(link, forNew):
+
     fr_image = face_recognition.load_image_file(link)
 
     face_landmarks_list = face_recognition.face_landmarks(fr_image)
@@ -37,7 +35,15 @@ def imageProcces(link, forNew):
         distance = math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
         return distance
 
+    def newLoad(image):
+        mode = "RGB"
+        im = PIL.Image.open(image)
+    
+        im = im.convert(mode)
+
     pil_image = PIL.Image.fromarray(fr_image)
+
+
     list_of_data = []
     left_eye = face_landmarks_list[0]["left_eye"]
     right_eye = face_landmarks_list[0]["right_eye"]
@@ -186,12 +192,7 @@ def imageProcces(link, forNew):
             d.line(face_landmarks['left_eye'] + [face_landmarks['left_eye'][0]], fill=(10, 0, 255, 255), width=1)
             d.line(face_landmarks['right_eye'] + [face_landmarks['right_eye'][0]], fill=(10, 0, 250, 255), width=1)
             d.line(face_landmarks['left_eye'][2:3], fill=(0, 0, 255, 255), width=2)
-            lastImage = d
-
-    r1 = get_the_Ratio(left_eye[0],left_eye[3],right_eye[0],right_eye[3])
-    r2 = get_the_Ratio(l_eye_brow[0],l_eye_brow[4],r_eye_brow[0],r_eye_brow[4])
-    r3 = get_the_Ratio(t_lip[0],chin[4],t_lip[6],chin[12])
-
+            pil_image.show()
 
 
 answerList = []
@@ -210,37 +211,21 @@ print(len(list_to_dataList))
 # show = True
 # while againe :
 # linkForNew = input("GIVE A LINK FOT PHOTO THAT YOU WANT PLEASE: ")
-#imageProcces(linkForNew, False)
-#answer = str(input("PRESS 1 IF YOU THINK PERSON IS BEAUTIFUL , PRESS 2 SAY -NO COMMENT "))
+"""imageProcces(linkForNew, False)
+     answer = str(input("PRESS 1 IF YOU THINK PERSON IS BEAUTIFUL , PRESS 2 SAY -NO COMMENT "))
 
 
-"""answerList.append("1")
-fl = open("dataNew.txt", "a+")
-line = linkForNew
+     answerList.append("1")
+     fl = open("dataNew.txt", "a+")
+     line = linkForNew
 
-fl.writelines(line)
-fl.close()
-fl2 = open("answersNew.txt", "a+")
+     fl.writelines(line)
+     fl.close()
+     fl2 = open("answersNew.txt", "a+")
      fl2.writelines(answer)
      fl2.close()"""
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-listOfLines = list()
+"""listOfLines = list()
 listOfLines2 = list()
 with open("dataNew.txt", "r") as myfile:
     for line in myfile:
@@ -259,31 +244,31 @@ for i in listOfLines2:
 print(list_to_dataList)
 
 for i in list_to_dataList:
-    imageProcces(i, False)
+    imageProcces(i, False)"""
 
 dataList = ratiosLast
 again = True  # for the bottom loop
 
-model = Sequential([
+"""model = Sequential([
 
 
-    Dense(units=1, input_shape=[46]),
+    Dense(units=1, input_shape=[34]),
 
 
 
 
-])
+])"""
 myList = answerList
 myInt = 10
 newList = [float(x) / myInt for x in myList]
-opt1 = Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999, amsgrad=False)
-opt2 = SGD(lr=0.001)
-model.compile(loss="mean_squared_error", optimizer = opt1, metrics=['accuracy'])
+#opt1 = Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999, amsgrad=False)
+#opt2 = SGD(lr=0.01)
+#model.compile(loss="mean_squared_error", optimizer = opt2, metrics=['accuracy'])
 xs = np.array(dataList, dtype=float)
 ys = np.array(newList, dtype=float)
-model.fit(xs, ys, epochs=10000)
-model.save("newModel311.h5")
+#model.fit(xs, ys, epochs=10000)
 
+newModel = models.load_model("newModel311.h5")
 
 while again:
     link = input("give the link of file")
@@ -293,20 +278,39 @@ while again:
 
     imageProcces(link, True)
     print(ratio_for_new)
-    b = 10*model.predict([ratio_for_new])
+    b = 10*newModel.predict([ratio_for_new])
     print(b)
+    c = 10 - b
+    if c > 4 and c <= 5:
+        b += c * (1 / 4)
+    elif c > 5 and c <= 6:
+        b += c * (3 / 13)
+    elif c > 3 and c <= 4:
+        b += c * (1 / 6)
+    elif c > 2 and c <= 3:
+        b += c * (1 / 5)
+    elif c > 1 and c <= 2:
+        b += c * (1 / 6)
+    elif c < 1:
 
+        b = 10
+    elif c > 10:
+        b = 1
+    print(b)
     answer = input("IF IT IS TRUE PRESS -Y-,IF not press -N ,to skip press -S")
 
     if answer == "n":
-        newPoint = "\n" + input("Give the true point for this photo: ")
+        newPoint = '\n' + input("Give the true point for this photo: ")
+
 
         answerList.append(newPoint)
         fl = open("dataNew.txt", "a+")
-        line = "\n" +link
+        line = '\n' + link
 
         fl.writelines(line)
         fl.close()
         fl2 = open("answersNew.txt", "a+")
-        fl2.writelines(newPoint)
+        fl2.write(newPoint)
         fl2.close()
+
+
